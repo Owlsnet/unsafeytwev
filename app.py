@@ -116,9 +116,10 @@ def process_job(filepath):
     global token_seed, current_processing
     token_seed = ""
     current_processing = True
-    cmd = ['python', 'run.py', filepath]  # Change this to your actual command
+    # Replace this command with your real processing command
+    cmd = ['python', 'run.py', filepath]
 
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, shell=False)
 
     for line in iter(proc.stdout.readline, ''):
         if "Token (Seed):" in line:
@@ -172,8 +173,7 @@ def stream_output():
 def download():
     if os.path.exists(RESULT_FILE):
         return send_from_directory(directory='.', path=RESULT_FILE, as_attachment=True)
-    else:
-        return "File not found", 404
+    return "No result file found", 404
 
 @app.route('/get_token_seed')
 def get_token_seed():
@@ -189,5 +189,5 @@ def delete_result():
         return jsonify({"status": "error"}), 500
 
 if __name__ == '__main__':
-    # Listen on all interfaces for Koyeb
+    # Must listen on 0.0.0.0 for Koyeb or any external access
     app.run(host='0.0.0.0', port=5000, debug=True)
