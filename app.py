@@ -117,7 +117,7 @@ def process_job(filepath):
     global token_seed, current_processing
     token_seed = ""
     current_processing = True
-    cmd = ['run.bat', filepath]
+    cmd = ['run.py', filepath]
 
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, shell=True)
 
