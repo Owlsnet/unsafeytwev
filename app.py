@@ -128,7 +128,6 @@ def process_job(filepath):
     proc.stdout.close()
     proc.wait()
     current_processing = False
-    # Do not delete result.mp4 here
 
 def worker():
     while True:
@@ -167,7 +166,6 @@ def stream_output():
                 line = current_output_queue.get(timeout=0.1)
                 yield f'data: {line}\n\n'
             except queue.Empty:
-                # no new output, just wait
                 time.sleep(0.1)
     return Response(event_stream(), mimetype='text/event-stream')
 
@@ -189,4 +187,6 @@ def delete_result():
         return jsonify({"status": "error"}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    import os
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
