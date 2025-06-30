@@ -116,8 +116,9 @@ def process_job(filepath):
     global token_seed, current_processing
     token_seed = ""
     current_processing = True
-    cmd = ['python', 'run.py', filepath]  # Adjust as needed to your actual run command
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, shell=False)
+    cmd = ['python', 'run.py', filepath]  # Change this to your actual command
+
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 
     for line in iter(proc.stdout.readline, ''):
         if "Token (Seed):" in line:
@@ -126,7 +127,6 @@ def process_job(filepath):
     proc.stdout.close()
     proc.wait()
     current_processing = False
-    # Do not delete result.mp4 here — manual deletion only
 
 def worker():
     while True:
@@ -150,6 +150,7 @@ def start_process():
     filename = file.filename
     filepath = os.path.join(UPLOAD_FOLDER, filename)
     file.save(filepath)
+
     job_queue.put(filepath)
     return ('', 204)
 
@@ -169,9 +170,10 @@ def stream_output():
 
 @app.route('/download')
 def download():
-    if not os.path.exists(RESULT_FILE):
-        return "File not ready yet or has been deleted", 404
-    return send_from_directory(directory='.', path=RESULT_FILE, as_attachment=True)
+    if os.path.exists(RESULT_FILE):
+        return send_from_directory(directory='.', path=RESULT_FILE, as_attachment=True)
+    else:
+        return "File not found", 404
 
 @app.route('/get_token_seed')
 def get_token_seed():
@@ -187,4 +189,5 @@ def delete_result():
         return jsonify({"status": "error"}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Listen on all interfaces for Koyeb
+    app.run(host='0.0.0.0', port=5000, debug=True)
