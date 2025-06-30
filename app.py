@@ -108,7 +108,6 @@ deleteBtn.onclick = async () => {
 '''
 
 job_queue = queue.Queue()
-job_lock = threading.Lock()
 current_output_queue = queue.Queue()
 token_seed = ""
 current_processing = False
@@ -117,9 +116,9 @@ def process_job(filepath):
     global token_seed, current_processing
     token_seed = ""
     current_processing = True
-   cmd = ['python', 'run.py', filepath]
+    cmd = ['python', 'run.py', filepath]
 
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, shell=True)
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 
     for line in iter(proc.stdout.readline, ''):
         if "Token (Seed):" in line:
@@ -187,6 +186,4 @@ def delete_result():
         return jsonify({"status": "error"}), 500
 
 if __name__ == '__main__':
-    import os
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=True)
